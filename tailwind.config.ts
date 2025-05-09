@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,8 +26,11 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#33C3F0',
+					foreground: '#FFFFFF',
+					light: '#BAE7FF',
+					lighter: '#E6F7FF',
+					dark: '#1EAEDB',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -67,6 +71,10 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				vazir: ['Vazirmatn', 'sans-serif'],
+				poppins: ['Poppins', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
