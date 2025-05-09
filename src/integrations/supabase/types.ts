@@ -9,16 +9,231 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      experts: {
+        Row: {
+          average_rating: number | null
+          created_at: string
+          id: string
+          name: string
+          total_ratings: number | null
+        }
+        Insert: {
+          average_rating?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          total_ratings?: number | null
+        }
+        Update: {
+          average_rating?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          total_ratings?: number | null
+        }
+        Relationships: []
+      }
+      issue_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          full_name: string
+          id: string
+          issue_type_id: string
+          phone_number: string
+          status: string
+          tower_id: string
+          unit_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          full_name: string
+          id?: string
+          issue_type_id: string
+          phone_number: string
+          status?: string
+          tower_id: string
+          unit_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          full_name?: string
+          id?: string
+          issue_type_id?: string
+          phone_number?: string
+          status?: string
+          tower_id?: string
+          unit_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_reports_issue_type_id_fkey"
+            columns: ["issue_type_id"]
+            isOneToOne: false
+            referencedRelation: "issue_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issue_reports_tower_id_fkey"
+            columns: ["tower_id"]
+            isOneToOne: false
+            referencedRelation: "towers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_types: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          requires_details: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          requires_details?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          requires_details?: boolean
+        }
+        Relationships: []
+      }
+      manager_tower_access: {
+        Row: {
+          created_at: string
+          id: string
+          tower_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tower_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tower_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_tower_access_tower_id_fkey"
+            columns: ["tower_id"]
+            isOneToOne: false
+            referencedRelation: "towers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tower_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          username?: string | null
+        }
+        Relationships: []
+      }
+      ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          expert_id: string
+          id: string
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          expert_id: string
+          id?: string
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          expert_id?: string
+          id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "experts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      towers: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      user_has_tower_access: {
+        Args: { tower_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "resident" | "manager" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +348,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["resident", "manager", "admin"],
+    },
   },
 } as const

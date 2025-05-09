@@ -1,4 +1,5 @@
 
+
 export type Tower = {
   id: string;
   name: string;
@@ -46,3 +47,4 @@ export type Rating = {
   comment?: string;
   createdAt: Date;
 };
+

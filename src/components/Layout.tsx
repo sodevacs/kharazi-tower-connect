@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +30,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, children }) => {
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser, logout } = useAppContext();
+  const { user, logout } = useAuth();
   const location = useLocation();
   
   return (
@@ -54,19 +54,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <NavItem to="/rate-experts">امتیازدهی کارشناسان</NavItem>
             <NavItem to="/expert-ratings">امتیازهای کارشناسان</NavItem>
             
-            {currentUser ? (
+            {user ? (
               <>
                 <NavItem to="/admin">پنل مدیریت</NavItem>
                 <Button 
                   variant="ghost" 
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={logout}
+                  onClick={() => logout()}
                 >
                   خروج
                 </Button>
               </>
             ) : (
-              <NavItem to="/login">ورود مدیران</NavItem>
+              <NavItem to="/auth">ورود / ثبت‌نام</NavItem>
             )}
           </nav>
         </div>
