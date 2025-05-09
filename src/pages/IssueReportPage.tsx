@@ -51,7 +51,18 @@ const IssueReportPage: React.FC = () => {
     
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      addIssueReport(data);
+      
+      // Ensure all required properties are present with proper types
+      const issueReportData = {
+        towerId: data.towerId,
+        issueTypeId: data.issueTypeId,
+        details: data.details || undefined,
+        fullName: data.fullName,
+        unitNumber: data.unitNumber,
+        phoneNumber: data.phoneNumber
+      };
+      
+      addIssueReport(issueReportData);
       form.reset();
       toast.success('گزارش خرابی شما با موفقیت ثبت شد');
     } catch (error) {
