@@ -66,7 +66,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Button>
               </>
             ) : (
-              <NavItem to="/auth">ورود / ثبت‌نام</NavItem>
+              <NavItem to="/login">ورود</NavItem>
             )}
           </nav>
         </div>

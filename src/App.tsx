@@ -12,7 +12,6 @@ import HomePage from "./pages/HomePage";
 import IssueReportPage from "./pages/IssueReportPage";
 import RateExpertsPage from "./pages/RateExpertsPage";
 import ExpertRatingsPage from "./pages/ExpertRatingsPage";
-import LoginPage from "./pages/LoginPage";
 import AuthPage from "./pages/AuthPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
@@ -33,8 +32,7 @@ const App = () => (
                 <Route path="/report-issue" element={<IssueReportPage />} />
                 <Route path="/rate-experts" element={<RateExpertsPage />} />
                 <Route path="/expert-ratings" element={<ExpertRatingsPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/login" element={<AuthPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
