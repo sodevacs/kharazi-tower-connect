@@ -1,96 +1,126 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAppContext } from '../context/AppContext';
-import { EXPERTS } from '../data/constants';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { Rating } from '@/components/Rating';
 
-const formSchema = z.object({
-  expertId: z.string({ required_error: 'انتخاب کارشناس الزامی است' }),
-  rating: z.string({ required_error: 'امتیاز الزامی است' }),
+const ratingSchema = z.object({
+  name: z.string().min(2, { message: 'نام حداقل باید شامل ۲ کاراکتر باشد' }),
+  rating: z.number().min(1).max(5),
   comment: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type RatingFormData = z.infer<typeof ratingSchema>;
 
-const RateExpertsPage: React.FC = () => {
-  const { addRating } = useAppContext();
+const RateExpertsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [ratings, setRatings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<RatingFormData>({
+    resolver: zodResolver(ratingSchema),
     defaultValues: {
-      expertId: '',
-      rating: '',
+      name: '',
+      rating: 0,
       comment: '',
     },
   });
   
-  const onSubmit = async (data: FormData) => {
+  useEffect(() => {
+    fetchRatings();
+  }, []);
+  
+  const fetchRatings = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('public_ratings')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching ratings:', error);
+        return;
+      }
+      
+      setRatings(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const onSubmit = async (data: RatingFormData) => {
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      addRating({
-        expertId: data.expertId,
-        rating: parseInt(data.rating),
-        comment: data.comment,
-      });
-      form.reset();
+      const { error } = await supabase
+        .from('public_ratings')
+        .insert([
+          { 
+            name: data.name,
+            rating: data.rating, 
+            comment: data.comment || null 
+          }
+        ]);
+      
+      if (error) {
+        toast.error('خطا در ثبت نظر');
+        console.error('Error submitting rating:', error);
+        return;
+      }
+      
       toast.success('نظر شما با موفقیت ثبت شد');
+      form.reset({
+        name: '',
+        rating: 0,
+        comment: '',
+      });
+      
+      // Refresh ratings
+      fetchRatings();
+      
     } catch (error) {
-      toast.error('خطا در ثبت نظر');
+      toast.error('خطا در ارتباط با سرور');
+      console.error('Error:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
   
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="space-y-8">
       <Card className="card-shadow">
         <CardHeader className="bg-primary-lighter">
           <CardTitle className="text-2xl text-center text-gray-800">
-            امتیازدهی به کارشناسان
+            نظرسنجی کاربران
           </CardTitle>
           <CardDescription className="text-center text-gray-600">
-            نظر خود را در مورد عملکرد کارشناسان ثبت کنید
+            نظر خود را درباره خدمات مجتمع برج‌های خرازی ثبت کنید
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="expertId"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>انتخاب کارشناس</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="کارشناس مورد نظر را انتخاب کنید" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {EXPERTS.map((expert) => (
-                          <SelectItem key={expert.id} value={expert.id}>
-                            {expert.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel className="font-bold">نام شما</FormLabel>
+                    <FormControl>
+                      <Input placeholder="نام خود را وارد کنید" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -101,33 +131,12 @@ const RateExpertsPage: React.FC = () => {
                 name="rating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>امتیاز</FormLabel>
+                    <FormLabel className="font-bold">امتیاز شما</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex justify-between"
-                      >
-                        {[5, 4, 3, 2, 1].map((value) => (
-                          <FormItem
-                            key={value}
-                            className="flex flex-col items-center space-y-2"
-                          >
-                            <FormLabel className="text-lg font-medium">
-                              {value}
-                            </FormLabel>
-                            <FormControl>
-                              <RadioGroupItem value={value.toString()} />
-                            </FormControl>
-                            <FormLabel className="text-xs text-muted-foreground">
-                              {value === 5 ? 'عالی' :
-                                value === 4 ? 'خوب' :
-                                value === 3 ? 'متوسط' :
-                                value === 2 ? 'ضعیف' : 'خیلی ضعیف'}
-                            </FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
+                      <Rating
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,12 +148,13 @@ const RateExpertsPage: React.FC = () => {
                 name="comment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>توضیحات (اختیاری)</FormLabel>
+                    <FormLabel className="font-bold">نظر شما</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="توضیحات خود را وارد کنید"
-                        {...field}
-                        className="min-h-[100px]"
+                      <Textarea 
+                        placeholder="نظر خود را بنویسید (اختیاری)" 
+                        className="resize-none" 
+                        rows={4}
+                        {...field} 
                       />
                     </FormControl>
                     <FormMessage />
@@ -154,13 +164,51 @@ const RateExpertsPage: React.FC = () => {
               
               <Button 
                 type="submit" 
-                className="w-full mt-6" 
+                className="w-full font-bold" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'در حال ثبت...' : 'ثبت نظر'}
               </Button>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+      
+      <Card className="card-shadow">
+        <CardHeader className="bg-primary-lighter">
+          <CardTitle className="text-xl text-center text-gray-800">
+            نظرات کاربران دیگر
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {isLoading ? (
+            <p className="text-center text-gray-500">در حال بارگذاری نظرات...</p>
+          ) : ratings.length > 0 ? (
+            <div className="space-y-6">
+              {ratings.map((rating) => (
+                <div key={rating.id} className="border-b pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-lg">{rating.name}</h3>
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className="text-yellow-500 text-lg">
+                          {star <= rating.rating ? '★' : '☆'}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {rating.comment && (
+                    <p className="mt-2 text-gray-700">{rating.comment}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-2">
+                    {new Date(rating.created_at).toLocaleDateString('fa-IR')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">هنوز نظری ثبت نشده است</p>
+          )}
         </CardContent>
       </Card>
     </div>

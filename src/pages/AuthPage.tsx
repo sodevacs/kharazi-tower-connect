@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'ایمیل نامعتبر است' }),
-  password: z.string().min(6, { message: 'رمز عبور باید حداقل ۶ کاراکتر باشد' }),
+  password: z.string().min(1, { message: 'رمز عبور الزامی است' }),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -22,6 +22,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const AuthPage: React.FC = () => {
   const { login, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -40,6 +41,7 @@ const AuthPage: React.FC = () => {
   
   const handleLogin = async (data: LoginFormData) => {
     setIsSubmitting(true);
+    setLoginError(null);
     
     try {
       const result = await login(data.email, data.password);
@@ -48,9 +50,11 @@ const AuthPage: React.FC = () => {
         toast.success('ورود موفقیت‌آمیز');
         navigate('/admin');
       } else {
-        toast.error(result.error || 'خطا در ورود به سیستم');
+        setLoginError(result.error || 'نام کاربری یا رمز عبور اشتباه است');
+        toast.error(result.error || 'نام کاربری یا رمز عبور اشتباه است');
       }
     } catch (error) {
+      setLoginError('خطا در برقراری ارتباط با سرور');
       toast.error('خطا در برقراری ارتباط با سرور');
       console.error(error);
     } finally {
@@ -62,7 +66,7 @@ const AuthPage: React.FC = () => {
     <div className="max-w-md mx-auto">
       <Card className="card-shadow">
         <CardHeader className="bg-primary-lighter text-center">
-          <CardTitle className="text-2xl text-gray-800">
+          <CardTitle className="text-2xl text-gray-800 font-bold">
             ورود به سیستم
           </CardTitle>
           <CardDescription className="text-gray-600">
@@ -70,6 +74,12 @@ const AuthPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
+          {loginError && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-center">
+              {loginError}
+            </div>
+          )}
+          
           <Form {...loginForm}>
             <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
               <FormField
@@ -77,7 +87,7 @@ const AuthPage: React.FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ایمیل</FormLabel>
+                    <FormLabel className="font-bold">ایمیل</FormLabel>
                     <FormControl>
                       <Input 
                         type="email" 
@@ -95,7 +105,7 @@ const AuthPage: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>رمز عبور</FormLabel>
+                    <FormLabel className="font-bold">رمز عبور</FormLabel>
                     <FormControl>
                       <Input 
                         type="password" 
@@ -110,7 +120,7 @@ const AuthPage: React.FC = () => {
               
               <Button 
                 type="submit" 
-                className="w-full mt-6" 
+                className="w-full mt-6 font-bold" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'در حال ورود...' : 'ورود به سیستم'}
@@ -121,8 +131,8 @@ const AuthPage: React.FC = () => {
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>برای تست برنامه می‌توانید از حساب‌های زیر استفاده کنید:</p>
             <ul className="mt-1">
-              <li>ادمین: admin@example.com (رمز: 123456)</li>
-              <li>مدیر: manager@example.com (رمز: 123456)</li>
+              <li className="font-bold">ادمین: admin@example.com (رمز: 123456)</li>
+              <li className="font-bold">مدیر: manager@example.com (رمز: 123456)</li>
             </ul>
           </div>
         </CardContent>
