@@ -25,7 +25,7 @@ export const Rating: React.FC<RatingProps> = ({
   };
   
   return (
-    <div className="flex items-center space-x-1 space-x-reverse">
+    <div className="flex items-center gap-1">
       {stars.map((star) => (
         <button
           key={star}

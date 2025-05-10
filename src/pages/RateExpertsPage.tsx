@@ -43,7 +43,7 @@ const RateExpertsPage = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('public_ratings')
+        .from('ratings')
         .select('*')
         .order('created_at', { ascending: false });
       
@@ -65,10 +65,10 @@ const RateExpertsPage = () => {
     
     try {
       const { error } = await supabase
-        .from('public_ratings')
+        .from('ratings')
         .insert([
           { 
-            name: data.name,
+            expert_id: '00000000-0000-0000-0000-000000000000', // Default expert ID for public ratings
             rating: data.rating, 
             comment: data.comment || null 
           }
@@ -136,6 +136,7 @@ const RateExpertsPage = () => {
                       <Rating
                         value={field.value}
                         onChange={field.onChange}
+                        size="lg"
                       />
                     </FormControl>
                     <FormMessage />
@@ -188,7 +189,7 @@ const RateExpertsPage = () => {
               {ratings.map((rating) => (
                 <div key={rating.id} className="border-b pb-4 last:border-0 last:pb-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-lg">{rating.name}</h3>
+                    <h3 className="font-bold text-lg">{rating.comment ? rating.comment.split(' ')[0] : 'کاربر'}</h3>
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <span key={star} className="text-yellow-500 text-lg">

@@ -20,7 +20,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, children }) => {
     <Link
       to={to}
       className={cn(
-        'px-4 py-2 rounded-md transition-colors font-bold',
+        'px-3 py-2 rounded-md transition-colors font-bold text-sm',
         isActive 
           ? 'bg-primary text-white' 
           : 'text-gray-700 hover:bg-primary-lighter'
@@ -44,16 +44,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        <div className="container mx-auto p-4 flex flex-col md:flex-row items-center justify-between">
+        <div className="container mx-auto p-3 flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center w-full md:w-auto justify-between mb-4 md:mb-0">
             <div className="flex items-center">
               <img 
                 src="/placeholder.svg" 
-                alt="لوگو شرکت سهند ارتباطات خاورمیانه" 
-                className="h-10 w-auto ml-3" 
+                alt="لوگو شرکت سهند ارتباطات" 
+                className="h-10 w-auto ml-2" 
               />
-              <h1 className="text-xl md:text-2xl font-bold app-title">
-                سامانه مدیریت برج‌های خرازی
+              <h1 className="text-lg md:text-xl font-bold app-title">
+                برج‌های خرازی
               </h1>
             </div>
             
@@ -70,20 +70,20 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
           
           <nav className={cn(
-            "flex flex-col md:flex-row gap-3 md:gap-4 w-full md:w-auto",
+            "flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto",
             isMobile && !menuOpen ? "hidden" : "flex"
           )}>
             <NavItem to="/">صفحه اصلی</NavItem>
-            <NavItem to="/report-issue">گزارش خرابی</NavItem>
+            <NavItem to="/report-issue">گزارش</NavItem>
             <NavItem to="/rate-experts">نظرسنجی</NavItem>
-            <NavItem to="/expert-ratings">نتایج نظرات</NavItem>
+            <NavItem to="/expert-ratings">نتایج</NavItem>
             
             {user ? (
               <>
                 <NavItem to="/admin">مدیریت</NavItem>
                 <Button 
                   variant="ghost" 
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 font-bold"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 font-bold text-sm"
                   onClick={() => logout()}
                 >
                   خروج
@@ -102,7 +102,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       
       <footer className="bg-white border-t mt-8 py-4">
         <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-          © {new Date().getFullYear()} - تمامی حقوق متعلق به شرکت سهند ارتباطات خاورمیانه می‌باشد
+          © {new Date().getFullYear()} - تمامی حقوق متعلق به شرکت سهند ارتباطات می‌باشد
         </div>
       </footer>
     </div>
